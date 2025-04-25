@@ -117,7 +117,7 @@
     </div>
 
     <script>
-
+        const transitionDelay = 300;
         function startChat() {
             document.getElementById("bubble1").style.display = "block";
             setTimeout(() => {
@@ -156,7 +156,7 @@
                         } else {
                             document.getElementById("feedback-section").style.display = "none";
                         }
-                    }, 2500);
+                    }, transitionDelay);
                 });
         }
 
@@ -198,7 +198,7 @@
 
                             document.getElementById("feedback-section").style.display = hideFeedback ? "none" : "block";
                     });
-            }, 800); // 💡 這裡控制灰貓說完過多久白貓回應
+            }, transitionDelay); // 💡 這裡控制灰貓說完過多久白貓回應
         }
     </script>
 </body>

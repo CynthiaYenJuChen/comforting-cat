@@ -22,18 +22,30 @@ def get_comfort():
     feedback = data.get("feedback", "")  # 接收回饋（謝謝你/爛透了）
     response_text = "..."
 
+    # 根據使用者 IP 區分用戶
+    user_id = request.remote_addr or "default"
+    print("user_id：", user_id)
+    count = retry_count.get(user_id, 0)
+
     # 回饋處理
     if feedback == "謝謝妳":
+        retry_count[user_id] = 0  # 重置次數
+        # retry_count["count"] = 0
         return jsonify({
             "response": "😺 謝謝你願意說出來～",
             "gray_cat_image": "cat2.webp"  # 讓灰貓變得更可愛地回應
         })
 
     elif feedback == "爛透了":
-        retry_count.setdefault("count", 0)
-        retry_count["count"] += 1
+        # retry_count.setdefault("count", 0)
+        # retry_count["count"] += 1
+        count += 1
+        retry_count[user_id] = count
 
-        if retry_count["count"] >= 3:
+        if count >= 3:
+            retry_count[user_id] = 0
+        # if retry_count["count"] >= 3:
+            # retry_count["count"] = 0
             return jsonify({
                 "response": "⚠️ 白貓安慰失敗…已經不再說話，只是靜靜陪著你。",
                 "cat_image": "cat11.webp",  # 表示白貓圖要換
