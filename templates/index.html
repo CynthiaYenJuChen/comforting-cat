@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>安心語貓咪 🐾</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", sans-serif;
+            background-color: #fff9f0;
+            color: #444;
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .chat-row {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 150px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .chat-cat {
+            width: 125px;
+            height: auto;
+            z-index: 1;
+        }
+
+        .bubble-box {
+            position: absolute;
+            max-width: 60%;
+            padding: 1rem;
+            border-radius: 12px;
+            background-color: #fff1f1;
+            border-left: 6px solid #f5aaaa;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            z-index: 2;
+        }
+
+        .bubble-left {
+            left: 110px;
+            top: 15px;
+        }
+
+        .bubble-right {
+            right: 110px;
+            top: 15px;
+        }
+
+        #input-section,
+        #feedback-section {
+            display: none;
+            text-align: right;
+        }
+
+        textarea {
+            width: 60%;
+            margin-left: auto;
+            margin-right: 0;
+            height: 100px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            background-color: #ffb6b6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body onload="startChat()">
+    <div class="chat-row">
+        <img id="whiteCat" src="{{ url_for('static', filename='cat1.webp') }}" class="chat-cat" alt="白貓">
+        <img id="grayCat" src="{{ url_for('static', filename='cat12.webp') }}" class="chat-cat" alt="灰貓">
+        <div id="bubble1" class="bubble-box bubble-right">我想討拍 🥺</div>
+        <div id="bubble2" class="bubble-box bubble-left">你怎麼了？</div>
+        <div id="bubble3" class="bubble-box bubble-right"></div>
+        <div id="bubble4" class="bubble-box bubble-left"></div>
+    </div>
+
+    <div id="input-section">
+        <textarea id="userInput" placeholder="請輸入你的煩惱..."></textarea><br>
+        <button onclick="getComfort()">說給貓咪聽 🐾</button>
+    </div>
+
+    <div id="feedback-section">
+        <button onclick="sendFeedback('謝謝妳')">謝謝妳</button>
+        <button onclick="sendFeedback('爛透了')">爛透了</button>
+    </div>
+
+    <script>
+
+        function startChat() {
+            document.getElementById("bubble1").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("bubble1").style.display = "none";
+                document.getElementById("bubble2").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("bubble2").style.display = "none";
+                    document.getElementById("input-section").style.display = "block";
+                }, 2500);
+            }, 2500);
+        }
+
+        function getComfort() {
+            const userInput = document.getElementById("userInput").value;
+            document.getElementById("input-section").style.display = "none";
+            document.getElementById("bubble3").innerText = userInput;
+            document.getElementById("bubble3").style.display = "block";
+
+            fetch("/get_comfort", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: userInput })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout(() => {
+                        document.getElementById("bubble3").style.display = "none";
+                        document.getElementById("bubble4").innerText = data.response;
+                        document.getElementById("bubble4").style.display = "block";
+                        if (data.cat_image) {
+                            document.getElementById("whiteCat").src = `/static/${data.cat_image}`;
+                        }
+                        // ✅ 只有當 AI 正常產出（不是錯誤訊息）才顯示回饋按鈕
+                        if (data.cat_image === "cat1.webp") {
+                            document.getElementById("feedback-section").style.display = "block";
+                        } else {
+                            document.getElementById("feedback-section").style.display = "none";
+                        }
+                    }, 2500);
+                });
+        }
+
+        function sendFeedback(choice) {
+            document.getElementById("feedback-section").style.display = "none";
+
+            // 💡 白貓先閉嘴，讓灰貓有空間說話
+            document.getElementById("bubble4").style.display = "none";
+
+            // ✅ 先顯示灰貓說話（顯示使用者點選的字）
+            document.getElementById("bubble3").innerText = choice;
+            document.getElementById("bubble3").style.display = "block";
+            
+            // 等一下再讓白貓「回應」
+            setTimeout(() => {
+                fetch("/get_comfort", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ feedback: choice, prompt: document.getElementById("userInput").value })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                            // ❌ 灰貓講完就可以藏起來（或保留都可）
+                            document.getElementById("bubble3").style.display = "none";
+                            // ✅ 白貓回應
+                            document.getElementById("bubble4").innerText = data.response;
+                            document.getElementById("bubble4").style.display = "block";
+                            if (data.cat_image) {
+                                document.getElementById("whiteCat").src = `/static/${data.cat_image}`;
+                            }
+                            if (data.gray_cat_image) {
+                                document.getElementById("grayCat").src = `/static/${data.gray_cat_image}`;
+                            }
+                            // 依照實際回傳內容做按鈕顯示控制
+                            const hideFeedback = (
+                                data.allow_feedback === false ||  // 後端終止回應
+                                choice === '謝謝妳'                   // 正向結束
+                            );
+
+                            document.getElementById("feedback-section").style.display = hideFeedback ? "none" : "block";
+                    });
+            }, 800); // 💡 這裡控制灰貓說完過多久白貓回應
+        }
+    </script>
+</body>
+
+</html>
