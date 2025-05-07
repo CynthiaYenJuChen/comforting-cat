@@ -26,19 +26,30 @@ def get_comfort():
     response_text = "..."
 
     # 根據使用者 IP 區分用戶
-    user_id = request.headers.get("User-Agent") + request.remote_addr or "default"
+    # user_id = request.headers.get("User-Agent") + request.remote_addr or "default"
+     # 嘗試從 cookie 取得 user_id，如果沒有就產生一個新的
+    user_id = request.cookies.get("user_id")
+    new_cookie = False
+
+    if not user_id:
+        user_id = str(uuid.uuid4())
+        new_cookie = True 
+        
     print("user_id：", user_id)
+
     count = retry_count.get(user_id, 0)
+
+    response_data = None
 
     # 回饋處理
     if feedback == "謝謝妳":
         retry_count[user_id] = 0  # 重置次數
         # retry_count["count"] = 0
-        return jsonify({
+        response_data = {
             "response": "😺 謝謝你願意說出來～",
             "gray_cat_image": "cat2.webp"  # 讓灰貓變得更可愛地回應
-        })
-
+        }
+    
     elif feedback == "爛透了":
         # retry_count.setdefault("count", 0)
         # retry_count["count"] += 1
@@ -49,11 +60,18 @@ def get_comfort():
             retry_count[user_id] = 0
         # if retry_count["count"] >= 3:
             # retry_count["count"] = 0
-            return jsonify({
+            response_data = {
                 "response": "⚠️ 白貓安慰失敗…已經不再說話，只是靜靜陪著你。",
                 "cat_image": "cat11.webp",  # 表示白貓圖要換
                 "allow_feedback": False
-            })
+            }
+
+    if response_data:
+        res = jsonify(response_data)
+        if new_cookie:
+            res.set_cookie("user_id", user_id, max_age=60*60*24*30)
+        return res
+   
 
     payload = {
         "model": MODEL,
@@ -80,10 +98,13 @@ def get_comfort():
             "response": "⚠️ 貓咪暫時累了，稍後再說好嗎？"
         })
 
-    return jsonify({
+    res = jsonify({
         "response": response_text,
         "cat_image": "cat1.webp"  # 預設白貓圖
     })
+    if new_cookie:
+        res.set_cookie("user_id", user_id, max_age=60*60*24*30)  # 存一個月
+    return res
 
 if __name__ == "__main__":
     app.run(debug=True)
