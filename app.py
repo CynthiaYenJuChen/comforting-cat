@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import requests
 import os
+import uuid
 
 load_dotenv()
 app = Flask(__name__)
@@ -25,7 +26,7 @@ def get_comfort():
     response_text = "..."
 
     # 根據使用者 IP 區分用戶
-    user_id = request.remote_addr or "default"
+    user_id = request.headers.get("User-Agent") + request.remote_addr or "default"
     print("user_id：", user_id)
     count = retry_count.get(user_id, 0)
 
