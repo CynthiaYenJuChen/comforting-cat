@@ -100,20 +100,20 @@
     <div class="chat-row">
         <img id="whiteCat" src="{{ url_for('static', filename='cat1.webp') }}" class="chat-cat" alt="白貓">
         <img id="grayCat" src="{{ url_for('static', filename='cat12.webp') }}" class="chat-cat" alt="灰貓">
-        <div id="bubble1" class="bubble-box bubble-right">我想討拍 🥺</div>
-        <div id="bubble2" class="bubble-box bubble-left">你怎麼了？</div>
+        <div id="bubble1" class="bubble-box bubble-right">I want a cuddle 🥺</div>
+        <div id="bubble2" class="bubble-box bubble-left">What's going on?</div>
         <div id="bubble3" class="bubble-box bubble-right"></div>
         <div id="bubble4" class="bubble-box bubble-left"></div>
     </div>
 
     <div id="input-section">
-        <textarea id="userInput" placeholder="請輸入你的煩惱..."></textarea><br>
-        <button onclick="getComfort()">說給貓咪聽 🐾</button>
+        <textarea id="userInput" placeholder="Tell me your worries..."></textarea><br>
+        <button onclick="getComfort()">Tell the cat 🐾</button>
     </div>
 
     <div id="feedback-section">
-        <button onclick="sendFeedback('謝謝妳')">謝謝妳</button>
-        <button onclick="sendFeedback('爛透了')">爛透了</button>
+        <button onclick="sendFeedback('Thanks')">Thank you</button>
+        <button onclick="sendFeedback('Sucks')">That was terrible</button>
     </div>
 
     <script>
@@ -193,7 +193,7 @@
                             // 依照實際回傳內容做按鈕顯示控制
                             const hideFeedback = (
                                 data.allow_feedback === false ||  // 後端終止回應
-                                choice === '謝謝妳'                   // 正向結束
+                                choice === 'Thanks'                   // 正向結束
                             );
 
                             document.getElementById("feedback-section").style.display = hideFeedback ? "none" : "block";

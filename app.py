@@ -62,16 +62,16 @@ def get_comfort():
         db.session.commit()
 
     # 回饋處理
-    if feedback == "謝謝妳":
+    if feedback == "Thanks":
         user_state.retry_count = 0
         # retry_count[user_id] = 0  # 重置次數
         # retry_count["count"] = 0
         response_data = {
-            "response": "😺 謝謝你願意說出來～",
+            "response": "😺 Thank you for sharing～",
             "gray_cat_image": "cat2.webp"  # 讓灰貓變得更可愛地回應
         }
     
-    elif feedback == "爛透了":
+    elif feedback == "Sucks":
         user_state.retry_count += 1
         # retry_count.setdefault("count", 0)
         # retry_count["count"] += 1
@@ -83,7 +83,7 @@ def get_comfort():
         if user_state.retry_count >= 3:
             user_state.retry_count = 0
             response_data = {
-                "response": "⚠️ 白貓安慰失敗…已經不再說話，只是靜靜陪著你。",
+                "response": "⚠️ The white cat couldn’t find the right words… but it’s still here, quietly staying with you.",
                 "cat_image": "cat11.webp",  # 表示白貓圖要換
                 "allow_feedback": False
             }
@@ -100,7 +100,7 @@ def get_comfort():
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": "你是一隻擅長安慰人的貓咪，請用溫柔、有層次的語氣簡短回應使用者的煩惱。"},
+            {"role": "system", "content": "You're a sweet cat who comforts people. Reply to their worries with warmth, softness, and emotional layers — in short, cozy sentences that feel like a soft paw on the heart. 🐾"},
             {"role": "user", "content": prompt}
         ]
     }
@@ -123,7 +123,7 @@ def get_comfort():
         print("❌ 回傳錯誤：", res.status_code)
         print("❌ 回傳內容：", res.text)
         return jsonify({
-            "response": "⚠️ 貓咪暫時累了，稍後再說好嗎？"
+            "response": "⚠️ Meow... I'm a bit tired. Can we cuddle and chat later?"
         })
 
     res = jsonify({
