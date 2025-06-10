@@ -122,6 +122,7 @@ SELECT * FROM user_state;
 2. 跑 `python3 -m venv venv && source venv/bin/activate`
 3. `pip install -r requirements.txt`
 4. 使用 `systemd` 建立服務，搭配 Gunicorn + Nginx 可做正式部署（見 `deploy.sh` 示意）
+5. 網址：http://34.29.177.247/
 
 ---
 
