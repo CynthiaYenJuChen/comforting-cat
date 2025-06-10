@@ -134,8 +134,9 @@ SELECT * FROM user_state;
 3. Install dependencies: `pip install -r requirements.txt`
 
 4. Set up a systemd service to run the app
+   Use gunicorn + nginx for production environments (see deploy.sh as a reference)
 
-5. Use gunicorn + nginx for production environments (see deploy.sh as a reference)
+5. WebSite：http://34.29.177.247/
 
 ---
 
